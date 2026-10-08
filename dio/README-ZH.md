@@ -26,6 +26,7 @@ dio 是一个强大的 HTTP 网络请求库，支持全局配置、Restful API�
   * [示例](#示例)
     * [发起一个 `GET` 请求 :](#发起一个-get-请求-)
     * [发起一个 `POST` 请求:](#发起一个-post-请求)
+    * [发起一个 `QUERY` 请求:](#发起一个-query-请求)
     * [发起多个并发请求](#发起多个并发请求)
     * [下载文件](#下载文件)
     * [以流的方式接收响应数据](#以流的方式接收响应数据)
@@ -146,6 +147,15 @@ void request() async {
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
+### 发起一个 `QUERY` 请求:
+
+`QUERY` 方法（RFC 10008）与 `GET` 一样是安全且幂等的，但允许携带请求体，
+适合用于参数过多或结构复杂、不适合放在 URL 中的查询。
+
+```dart
+response = await dio.query('/search', data: {'filter': {'name': 'dio'}});
+```
+
 ### 发起多个并发请求
 
 ```dart
@@ -160,6 +170,11 @@ response = await dio.download(
   '${(await getTemporaryDirectory()).path}google.html',
 );
 ```
+
+在 Web 平台上，第二个参数会被当作浏览器下载的建议文件名，而不是本地文件系统路径。
+浏览器会决定实际保存位置；下载内容会先完整载入内存，并且仍受 CORS 限制。
+`FileAccessMode.append` 不支持，`deleteOnError` 没有可删除的本地文件，自定义
+`lengthHeader` 也不会用于 Web 下载进度总量。
 
 ### 以流的方式接收响应数据
 

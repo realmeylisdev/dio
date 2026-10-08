@@ -4,6 +4,24 @@
 
 *None.*
 
+## 2.2.2
+
+- Fix native XHR timeouts being misclassified as `receiveTimeout` when the
+  connection was never established.
+
+## 2.2.1
+
+- Warn when a request is not a CORS "simple request" and will trigger a
+  preflight (OPTIONS) request, and enrich the `XMLHttpRequest.onError` message
+  with CORS guidance when the request was preflighted. The warning can be
+  disabled via `BrowserHttpClientAdapter(enableCORSWarning: false)`; the
+  enriched error message is always emitted.
+
+## 2.2.0
+
+- Support `Dio.download` on Web by fetching bytes and triggering a browser
+  download with a Blob URL.
+
 ## 2.1.2
 
 - Fix inaccurate timeout type detection using `xhr.readyState` instead of timer existence.

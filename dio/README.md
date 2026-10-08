@@ -27,6 +27,7 @@ Timeout, Custom adapters, Transformers, etc.
   * [Examples](#examples)
     * [Performing a `GET` request](#performing-a-get-request)
     * [Performing a `POST` request](#performing-a-post-request)
+    * [Performing a `QUERY` request](#performing-a-query-request)
     * [Performing multiple concurrent requests](#performing-multiple-concurrent-requests)
     * [Downloading a file](#downloading-a-file)
     * [Get response stream](#get-response-stream)
@@ -130,6 +131,15 @@ void request() async {
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
+### Performing a `QUERY` request
+
+The `QUERY` method (RFC 10008) is safe and idempotent like `GET`, but allows a
+request body, which is useful for complex queries that do not fit in the URL.
+
+```dart
+response = await dio.query('/search', data: {'filter': {'name': 'dio'}});
+```
+
 ### Performing multiple concurrent requests
 
 ```dart
@@ -144,6 +154,13 @@ response = await dio.download(
   (await getTemporaryDirectory()).path + 'pub.html',
 );
 ```
+
+On Web, the second argument is used as the browser's suggested filename instead
+of a local filesystem path. The browser chooses the actual saved location, the
+response is loaded into memory before the download is triggered, and CORS still
+applies. `FileAccessMode.append` is not supported, `deleteOnError` has no local
+file to delete, and custom `lengthHeader` values are not used for Web progress
+totals.
 
 ### Get response stream
 

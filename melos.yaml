@@ -46,8 +46,11 @@ scripts:
   httpbun:local:
     description: Run httpbun locally
     run: echo "const httpbunBaseUrl = 'https://httpbun.local';" > dio_test/lib/src/httpbun.dart
+  httpbun:local:http:
+    description: Run httpbun locally over HTTP
+    run: echo "const httpbunBaseUrl = 'http://httpbun.local';" > dio_test/lib/src/httpbun.dart
   httpbun:com:
-    description: Run httpbun locally
+    description: Run tests against httpbun.com
     run: echo "const httpbunBaseUrl = 'https://httpbun.com';" > dio_test/lib/src/httpbun.dart
 
   test:
@@ -91,14 +94,22 @@ scripts:
   test:web:single:
     name: Dart Web tests in a browser
     exec: |
-      if [ "$TARGET_DART_SDK" = "min" ]; then
-        dart test --platform ${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
-      else
-        dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
-        if [ "$WITH_WASM" = "true" ]; then
-          dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces --compiler=dart2wasm
+      sh -c '
+        set -e
+        if [ "\$TARGET_DART_SDK" = "min" ]; then
+          exec dart test --platform "\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces
         fi
-      fi
+
+        if [ "\$MELOS_PACKAGE_NAME" = "dio_web_adapter" ] && [ "\$TEST_PLATFORM" = "chrome" ]; then
+          dart test --platform "\$TEST_PLATFORM" --coverage="coverage/\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces
+        else
+          dart test --platform "\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces
+        fi
+
+        if [ "\$WITH_WASM" = "true" ]; then
+          dart test --platform "\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces --compiler=dart2wasm
+        fi
+      '
     packageFilters:
       flutter: false
       dirExists: test
